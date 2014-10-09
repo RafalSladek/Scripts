@@ -1,1 +1,1 @@
-powershell C:\scripts\stop_vms.ps1
+powershell .\stop_vms.ps1 

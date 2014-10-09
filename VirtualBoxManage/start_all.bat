@@ -1,1 +1,1 @@
-powershell C:\scripts\start_vms.ps1
+powershell .\start_vms.ps1
