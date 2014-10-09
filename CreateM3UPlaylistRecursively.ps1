@@ -23,6 +23,7 @@ foreach ($artist in $artists) {
             WriteM3UFile $albumPath $artist.Name $album.Name $musicFiles
         }
     }
+    Write-Host "Completed"
 }
 
 Function GetAllMusicFileNames($albumPath){
