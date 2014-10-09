@@ -27,7 +27,7 @@ foreach ($artist in $artists) {
 
 Function GetAllMusicFileNames($albumPath){
    Write-Host "Getting all music files in $albumPath"
-   get-childitem -path $albumPath | where {$_.extension -eq ".mp3" -or $_.extension -eq ".wma" -or $_.extension -eq ".m4a" -or $_.extension -eq ".flac"}  | Sort-Object name | Foreach-Object {$_.Name} { $_.Name }      
+   get-childitem -path $albumPath | where {$_.extension -eq ".mp3" -or $_.extension -eq ".wma" -or $_.extension -eq ".ogg" -or $_.extension -eq ".m4a" -or $_.extension -eq ".flac"}  | Sort-Object name | Foreach-Object {$_.Name} { $_.Name }      
 }   
 
 Function RemoveExitingM3UFile($currentDir){
@@ -47,5 +47,8 @@ Function WriteM3UFile($targetDir, $artistName, $albumName, $musicFiles){
 }
 
 
-$dirToScan = "F:\99_Done_Copy"
+#$dirToScan = "F:\98_Scanned_Music"
+$dirToScan = "\\nas\music"
+
+
 CreatePlaylist $dirToScan
