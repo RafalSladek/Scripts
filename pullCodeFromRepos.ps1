@@ -79,7 +79,7 @@ $repoBaseDir = 'D:\Sources'
 $targetZipDir = 'D:\backup\Code'
 
 $csprojs = ListAllCsProj $repoBaseDir
-CleanWithMSBuild $csprojs[0]
+CleanWithMSBuild $csprojs
 $svnRepos = ListAllRepoDirs $repoBaseDir $svnFolderName
 $gitRepos = ListAllRepoDirs $repoBaseDir $gitFolderName
 
