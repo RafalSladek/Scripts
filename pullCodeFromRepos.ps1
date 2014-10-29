@@ -40,20 +40,36 @@ Function UpdateGitRepos ($repoNames){
     cd $repoBaseDir
 }
 
-Function ZipFiles($targetDir, $repoBaseDir, $repoNames)
+Function ZipFiles($targetDir, $repoNames)
 {
     if (-not (test-path "$env:ProgramFiles\7-Zip\7z.exe")) { throw "$env:ProgramFiles\7-Zip\7z.exe needed" } 
-    set-alias sz "$env:ProgramFiles\7-Zip\7z.exe" 
-    $sourceDir = $repoBaseDir     
-    
-    $bak = Get-ChildItem  -Path $sourceDir | where {$_.Attributes -eq 'Directory'}
+    set-alias sz "$env:ProgramFiles\7-Zip\7z.exe"     
 	Write-Host 'Zipping all sources' $folderName 'folders...'  -foregroundcolor "blue"   
-    foreach ($repo in $repoNames) { 	
-         $targetDirName = "$repo.Name"".7z"	 
-		 $targetPath = Join-Path $targetDir $targetDirName 
-         Write-Host $repo.FullName "  ---->\t" 		$targetPath	
-         sz a -t7z -mx9 "$targetPath" "$repo.FullName"      
+    foreach ($repo in $repoNames) { 
+         $targetDirName = $repo.Name
+		 $archiveName = Join-Path $targetDir $targetDirName         
+         $filesToZip = $repo.FullName 
+         Write-Host $filesToZip "  ---->" $archiveName	
+         sz u -t7z -mx9 -ms=off  "$archiveName" "$filesToZip" | FIND /V "ing " | FIND /V "Igor Pavlov"      
     } 	
+}
+
+Function ListAllCsProj($repoBaseDir){
+	Write-Host 'Trying to find all your csproj files...'  -foregroundcolor "magenta"   
+    $items = gci $repoBaseDir -rec -ErrorAction SilentlyContinue | where {! $_.psiscontainer} | Where-Object {$_.Extension -eq ".csproj"} | Select -ExpandProperty FullName
+    Write-Host "Found "$items.Length"csproj files" -foregroundcolor "magenta"
+    foreach ($item in $items){
+        Write-Host $item -foregroundcolor "green"
+    } 
+    
+    return $items
+}
+
+Function CleanWithMSBuild($listOfCsProj){
+    foreach ($csproj in $listOfCsProj){
+        Write-Host "Msbuild clean for $csproj" -foregroundcolor "magenta"
+        MSbuild.exe $csproj /t:Clean
+    }
 }
 
 clear
@@ -62,10 +78,13 @@ $svnFolderName = '.svn'
 $repoBaseDir = 'D:\Sources'
 $targetZipDir = 'D:\backup\Code'
 
+$csprojs = ListAllCsProj $repoBaseDir
+CleanWithMSBuild $csprojs[0]
 $svnRepos = ListAllRepoDirs $repoBaseDir $svnFolderName
-UpdateSVNRepos $svnRepos 
-ZipFiles $targetZipDir $repoBaseDir $svnRepos 
-
 $gitRepos = ListAllRepoDirs $repoBaseDir $gitFolderName
+
+UpdateSVNRepos $svnRepos 
 UpdateGitRepos $gitRepos 
-ZipFiles $targetZipDir $repoBaseDir $gitRepos
+
+ZipFiles $targetZipDir $svnRepos 
+ZipFiles $targetZipDir $gitRepos
