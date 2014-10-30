@@ -21,7 +21,7 @@ Function UpdateSVNrepos ($repoNames){
     Write-Host 'Starting svn update ...'  -foregroundcolor "magenta"
 	foreach ($repo in $repoNames) {	        
         Write-Host 'SVN update ' $repo.FullName '...' -foregroundcolor "green"
-        svn cleanup $repo.FullName 
+        #svn cleanup $repo.FullName 
         svn update $repo.FullName        
 	}	 
     Write-Host 'Finished update from svn repositories' -foregroundcolor "magenta"
@@ -49,8 +49,9 @@ Function ZipFiles($targetDir, $repoNames)
          $targetDirName = $repo.Name
 		 $archiveName = Join-Path $targetDir $targetDirName         
          $filesToZip = $repo.FullName 
+		 $archiveName	= "$archiveName.7z"	
          Write-Host $filesToZip "  ---->" $archiveName	
-         sz u -t7z -mx9 -ms=off  "$archiveName" "$filesToZip" | FIND /V "ing " | FIND /V "Igor Pavlov"      
+         sz u -t7z -mx9 -ms=off  "$archiveName" "$filesToZip" -xr!bin -xr!obj #| FIND /V "ing " | FIND /V "Igor Pavlov"      
     } 	
 }
 
@@ -76,10 +77,11 @@ clear
 $gitFolderName = '.git'
 $svnFolderName = '.svn'
 $repoBaseDir = 'D:\Sources'
-$targetZipDir = 'D:\backup\Code'
+#$targetZipDir = 'D:\backup\Code'
+$targetZipDir = 'G:\AS24\Code'
 
-$csprojs = ListAllCsProj $repoBaseDir
-CleanWithMSBuild $csprojs
+#$csprojs = ListAllCsProj $repoBaseDir
+#CleanWithMSBuild $csprojs
 $svnRepos = ListAllRepoDirs $repoBaseDir $svnFolderName
 $gitRepos = ListAllRepoDirs $repoBaseDir $gitFolderName
 
