@@ -35,12 +35,13 @@ Function UpdateSVNrepos ($repoNames){
 
 Function UpdateGitRepos ($repoNames){
     Write-Host 'Starting git update ...' -foregroundcolor "magenta"
+    git config --global http.sslVerify false
 	foreach ($repo in $repoNames) {      
         cd $repo.FullName
-        Write-Host 'Git fetching and merging ' $repo'...' -foregroundcolor "green"
-        git fetch
-        git merge origin/master
+        Write-Host 'Git pull --rebase ' $repo'...' -foregroundcolor "green"
+        git pull --rebase origin master
     }	    
+    git config --global http.sslVerify true
     Write-Host 'Finished update from git repositories' -foregroundcolor "magenta"
     cd $repoBaseDir
 }
@@ -90,14 +91,13 @@ Function Main($repoBaseDir, $targetZipDir){
 
 	#$csprojs = ListAllCsProj $repoBaseDir
 	#CleanWithMSBuild $csprojs
-	$svnRepos = ListAllRepoDirs $repoBaseDir $svnFolderName
 	$gitRepos = ListAllRepoDirs $repoBaseDir $gitFolderName
-
-	UpdateSVNRepos $svnRepos 
 	UpdateGitRepos $gitRepos 
-
-	ZipFiles $targetZipDir $svnRepos 
 	ZipFiles $targetZipDir $gitRepos	
+	
+	$svnRepos = ListAllRepoDirs $repoBaseDir $svnFolderName
+	UpdateSVNRepos $svnRepos 	
+	ZipFiles $targetZipDir $svnRepos 		
 }
 
 Main $repoBaseDir $targetZipDir
